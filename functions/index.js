@@ -103,4 +103,5 @@ exports.buildserverless = function buildserverless(req, res) {
     build();
 
     res.status(200).end();
+  });
 };
