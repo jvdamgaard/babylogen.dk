@@ -1,6 +1,5 @@
 const execSync = require('child_process').execSync;
 const fs = require('fs');
-const fstream = require('fstream');
 const path = require('path');
 const request = require('request');
 const tar = require('tar');
