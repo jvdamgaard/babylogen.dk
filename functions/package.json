@@ -1,0 +1,7 @@
+{
+  "name": "buildserverless",
+  "version": "0.0.1",
+  "dependencies": {
+    "gh-pages": "^0.12.0"
+  }
+}
