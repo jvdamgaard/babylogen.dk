@@ -65,7 +65,7 @@ function install() {
   cmd('npm install', {
     cwd: fullBuildDir,
     env: {
-      NODE_ENV: "production" // this will not install dev dependencies
+      NODE_ENV: "development" // this will install dev dependencies
     }
   });
 
