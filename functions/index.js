@@ -4,6 +4,7 @@ const path = require('path');
 const request = require('request');
 const tar = require('tar');
 const zlib = require('zlib');
+const ghpages = require('gh-pages');
 
 // CONFIGURATION
 const GITHUB_USERNAME = 'jvdamgaard';
@@ -60,8 +61,9 @@ function cmd(command, options) {
 }
 
 function install() {
+  const start = Date.now();
   let fullBuildDir = path.join('/tmp/app', BUILD_DIR);
-  console.log('Executing install');
+  console.log('Installing dependencies');
   cmd('npm install', {
     cwd: fullBuildDir,
     env: {
@@ -69,29 +71,51 @@ function install() {
     }
   });
 
-  console.log('Install completed');
+  console.log(`Installed dependencies in ${Date.now() - start}ms`);
 }
 
 // downloadSource downloads the source code into /tmp/app
 function downloadSource(callback) {
+  const start = Date.now();
   console.log('Downloading source code');
 
   // helper function to clone from github
-  githubClone('/tmp/app', callback);
+  githubClone('/tmp/app', () => {
+    console.log(`Downloaded source code in ${Date.now() - start}ms`);
+    callback();
+  });
 }
 
 // build executes the build in /tmp/app/BUILD_DIR
 function build() {
+  const start = Date.now();
   let fullBuildDir = path.join('/tmp/app', BUILD_DIR);
   console.log('Executing build');
   cmd(BUILD_CMD, {
       cwd: fullBuildDir
   });
 
-  console.log('Build completed');
+  console.log(`Build completed in ${Date.now() - start}ms`);
+}
+
+function publish(done) {
+  const start = Date.now();
+  console.log('Publishing to gh-pages');
+  ghpages.publish(path.join('/tmp/app', BUILD_DIR, OUTPUT_DIR), {
+    user: {
+      name: 'Google Cloud Function',
+      email: 'jakob.viskum.damgaard@gmail.com'
+    }
+  }, err => {
+    console.log(`Published to gh-pages in ${Date.now() - start}ms`);
+    done(err);
+  });
 }
 
 exports.buildserverless = function buildserverless(req, res) {
+
+  const start = Date.now();
+
   // download the source code
   downloadSource(() => {
 
@@ -101,6 +125,15 @@ exports.buildserverless = function buildserverless(req, res) {
     // build the project
     build();
 
-    res.status(200).end();
+    // publish to gh-pages
+    publish((err) => {
+      if (err) {
+        throw err
+      }
+      console.log(`Build completed in ${Date.now() - start}ms`)
+      res.status(200).send();
+    })
+
+
   });
 };
