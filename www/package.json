@@ -5,7 +5,7 @@
   "author": "Jakob Viskum Damgaard <jakob.viskum.damgaard@gmail.com>",
   "private": true,
   "engines": {
-    "node": "7"
+    "node": "latest"
   },
   "dependencies": {
     "nuxt": "latest",
